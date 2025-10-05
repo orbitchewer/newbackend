@@ -13,11 +13,5 @@ con.connect((err) => {
   }
 });
 
-app.use(
-  cors({
-    origin: [process.env.CLIENT_URL],
-    // ...
-  })
-);
 
 export default con;
