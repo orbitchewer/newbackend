@@ -132,4 +132,45 @@ router.get("/logout", (req, res) => {
   return res.json({ Status: true });
 });
 
+// Add this entire block to AdminRoute.js
+
+router.post("/add_manager", async (req, res) => {
+  const { name, email, phone, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.json({
+      signupStatus: false,
+      Error: "All fields are required",
+    });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const sql =
+      "INSERT INTO manager (name, email, phone, password) VALUES (?, ?, ?, ?)";
+
+    con.query(sql, [name, email, phone, hashedPassword], (err, result) => {
+      if (err) {
+        if (err.code === "ER_DUP_ENTRY") {
+          return res.json({
+            signupStatus: false,
+            Error: "Email already exists",
+          });
+        }
+        return res.json({
+          signupStatus: false,
+          Error: "Database error: " + err.message,
+        });
+      }
+
+      return res.json({
+        signupStatus: true,
+        Message: "Manager added successfully",
+      });
+    });
+  } catch (error) {
+    return res.json({ signupStatus: false, Error: error.message });
+  }
+});
+
 export { router as adminRouter };
