@@ -26,7 +26,7 @@ const EmployeeLogin = () => {
     if (isSignup) {
       // ✅ Signup request
       axios
-        .post("http://localhost:3000/employee/add", values)
+        .post(`${import.meta.env.VITE_API_URL}/employee/add`, values)
         .then((res) => {
           if (res.data.Status) {
             setSuccess("Account created successfully! You can now log in.");
@@ -40,7 +40,7 @@ const EmployeeLogin = () => {
     } else {
       // ✅ Login request
       axios
-        .post("http://localhost:3000/employee/employee_login", values)
+        .post(`${import.meta.env.VITE_API_URL}/employee/employee_login`, values)
         .then((result) => {
           if (result.data.loginStatus) {
             localStorage.setItem("valid", true);

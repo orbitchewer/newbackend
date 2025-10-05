@@ -28,7 +28,7 @@ router.post("/adminlogin", (req, res) => {
 
       const token = jwt.sign(
         { role: "manager", email: manager.email, id: manager.admin_id },
-        "jwt_secret_key",
+        process.env.JWT_SECRET,
         { expiresIn: "1d" }
       );
 
@@ -61,7 +61,7 @@ router.post("/signup", async (req, res) => {
       // Auto-login after signup
       const token = jwt.sign(
         { role: "manager", email: email, id: result.insertId },
-        "jwt_secret_key",
+        process.env.JWT_SECRET,
         { expiresIn: "1d" }
       );
 
