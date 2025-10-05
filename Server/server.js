@@ -18,7 +18,7 @@ const isDev = process.env.NODE_ENV !== "production";
 
 app.use(
   cors({
-    origin: ["https://hearty-miracle-production.up.railway.app/"],
+    origin: ["https://hearty-miracle-production.up.railway.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
