@@ -4,29 +4,58 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+axios.defaults.withCredentials = true;
+
 const Login = () => {
-  const [values, setValues] = useState({ email: "", password: "" });
+  const [isSignup, setIsSignup] = useState(false);
+  const [values, setValues] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+  });
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  axios.defaults.withCredentials = true;
 
-  const API_BASE = import.meta.env.VITE_API_URL; // ✅ Define API Base URL
+  const handleInput = (e) => {
+    setValues({ ...values, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // ✅ Use API_BASE
-    axios
-      .post(`${API_BASE}/auth/adminlogin`, values)
-      .then((result) => {
-        if (result.data.loginStatus) {
-            localStorage.setItem("valid", "true");
-            if (result.data.id) localStorage.setItem("id", result.data.id);  // <-- important
-            navigate('/dashboard');
-        }else {
-          setError(result.data.Error);
-        }
-      })
-      .catch((err) => console.log(err));
+    setError(null);
+
+    if (isSignup) {
+      // ✅ Manager Signup
+      axios
+        .post("http://localhost:3000/auth/signup", values)
+        .then((res) => {
+          console.log("Signup Response:", res.data);
+          if (res.data.signupStatus) {
+            alert("Signup successful!");
+            navigate("/dashboard"); // ✅ redirect to same dashboard
+          } else {
+            setError(res.data.Error || "Signup failed. Please try again.");
+          }
+        })
+        .catch(() => setError("Signup failed. Please try again."));
+    } else {
+      // ✅ Manager Login
+      axios
+        .post("http://localhost:3000/auth/adminlogin", {
+          email: values.email,
+          password: values.password,
+        })
+        .then((res) => {
+          console.log("Login Response:", res.data);
+          if (res.data.loginStatus) {
+            navigate("/dashboard"); // ✅ redirect to same dashboard
+          } else {
+            setError(res.data.Error || "Invalid email or password.");
+          }
+        })
+        .catch(() => setError("Login failed. Please try again."));
+    }
   };
 
   return (
@@ -38,7 +67,7 @@ const Login = () => {
         overflow: "hidden",
       }}
     >
-      {/* Subtle floating background circles */}
+      {/* Background Glows */}
       <div
         className="position-absolute rounded-circle"
         style={{
@@ -62,7 +91,7 @@ const Login = () => {
         }}
       />
 
-      {/* Main login card */}
+      {/* Login/Signup Card */}
       <motion.div
         initial={{ opacity: 0, y: 60 }}
         animate={{ opacity: 1, y: 0 }}
@@ -82,10 +111,12 @@ const Login = () => {
             transition={{ delay: 0.2 }}
             className="fw-bold text-light"
           >
-            Manager Login
+            {isSignup ? "Manager Sign Up" : "Manager Login"}
           </motion.h2>
           <p className="text-secondary" style={{ fontSize: "0.9rem" }}>
-            Welcome back to your dashboard
+            {isSignup
+              ? "Create your manager account"
+              : "Welcome back to your dashboard"}
           </p>
         </div>
 
@@ -101,15 +132,43 @@ const Login = () => {
         )}
 
         <form onSubmit={handleSubmit}>
+          {isSignup && (
+            <>
+              <div className="mb-3">
+                <label className="form-label text-light fw-semibold">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={values.name}
+                  onChange={handleInput}
+                  required
+                  className="form-control rounded-3 bg-dark text-light border-0 py-2"
+                  style={{ backgroundColor: "#0f172a" }}
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label text-light fw-semibold">Phone</label>
+                <input
+                  type="text"
+                  name="phone"
+                  value={values.phone}
+                  onChange={handleInput}
+                  className="form-control rounded-3 bg-dark text-light border-0 py-2"
+                  style={{ backgroundColor: "#0f172a" }}
+                />
+              </div>
+            </>
+          )}
+
           <div className="mb-3">
             <label className="form-label text-light fw-semibold">Email</label>
             <input
               type="email"
               name="email"
-              placeholder="Enter your email"
-              onChange={(e) =>
-                setValues({ ...values, email: e.target.value })
-              }
+              value={values.email}
+              onChange={handleInput}
+              required
               className="form-control rounded-3 bg-dark text-light border-0 py-2"
               style={{ backgroundColor: "#0f172a" }}
             />
@@ -120,32 +179,12 @@ const Login = () => {
             <input
               type="password"
               name="password"
-              placeholder="Enter your password"
-              onChange={(e) =>
-                setValues({ ...values, password: e.target.value })
-              }
+              value={values.password}
+              onChange={handleInput}
+              required
               className="form-control rounded-3 bg-dark text-light border-0 py-2"
               style={{ backgroundColor: "#0f172a" }}
             />
-          </div>
-
-          <div className="form-check text-start mb-3">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="tick"
-              style={{ cursor: "pointer" }}
-            />
-            <label
-              className="form-check-label text-secondary"
-              htmlFor="tick"
-              style={{ fontSize: "0.85rem" }}
-            >
-              I agree to the{" "}
-              <span className="text-info text-decoration-none">
-                terms & conditions
-              </span>
-            </label>
           </div>
 
           <motion.button
@@ -154,6 +193,7 @@ const Login = () => {
               boxShadow: "0 0 15px rgba(168,85,247,0.5)",
             }}
             whileTap={{ scale: 0.98 }}
+            type="submit"
             className="btn w-100 text-white fw-semibold py-2 rounded-3"
             style={{
               background:
@@ -162,16 +202,35 @@ const Login = () => {
               letterSpacing: "0.5px",
             }}
           >
-            Sign In
+            {isSignup ? "Sign Up" : "Sign In"}
           </motion.button>
         </form>
 
         <div className="text-center mt-4">
           <p className="text-secondary mb-0" style={{ fontSize: "0.85rem" }}>
-            Need help?{" "}
-            <a href="/contact_admin" className="text-info text-decoration-none">
-            Contact Admin
-            </a>
+            {isSignup ? (
+              <>
+                Already have an account?{" "}
+                <button
+                  onClick={() => setIsSignup(false)}
+                  className="btn btn-link text-info p-0"
+                  style={{ fontSize: "0.85rem" }}
+                >
+                  Log In
+                </button>
+              </>
+            ) : (
+              <>
+                Don’t have an account?{" "}
+                <button
+                  onClick={() => setIsSignup(true)}
+                  className="btn btn-link text-info p-0"
+                  style={{ fontSize: "0.85rem" }}
+                >
+                  Sign Up
+                </button>
+              </>
+            )}
           </p>
         </div>
       </motion.div>
