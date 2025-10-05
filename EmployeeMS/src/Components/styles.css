@@ -1,0 +1,28 @@
+/* styles.css */
+/* .loginPage {
+    background-color: #f0f2f5;
+  } */
+  
+  .loginForm {
+    /* background-color: #fff; */
+    box-shadow: 0 4px 8px rgba(2, 2, 2, 2);
+  }
+  
+  /* h2 {
+    color: #333;
+  } */
+  
+  button.btn-primary {
+    background-color: #d63384;
+    border-color: white;
+    /* background-color: #007bff; */
+    /* border-color: #007bff; */
+  }
+  
+  button.btn-success {
+    background-color: lightseagreen;
+    border-color: white;
+    /* background-color: #28a745; */
+    /* border-color: #28a745; */
+  }
+  
