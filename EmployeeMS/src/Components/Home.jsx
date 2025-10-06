@@ -12,7 +12,7 @@ const Home = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "", phone: "" });
   const [editing, setEditing] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
-
+  const navigate = useNavigate(); 
   // Detect system theme
   useEffect(() => {
     const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
