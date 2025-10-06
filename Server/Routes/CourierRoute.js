@@ -171,10 +171,12 @@ router.get("/count", (req, res) => {
 /**
  * ✅ Courier history (for reports)
  */
+// In Server/Routes/CourierRoute.js
+
 router.get("/history", (req, res) => {
   const { from, to, pincode } = req.query;
   let sql = `
-    SELECT h.id, h.assigned_at, h.delivered_at,
+    SELECT h.id, h.assigned_at, c.delivered_at, -- ✅ CHANGED THIS LINE
            c.courier_id, c.tracking_number, c.description, c.pincode,
            e.name AS employee_name
     FROM courier_history h
@@ -190,7 +192,8 @@ router.get("/history", (req, res) => {
   }
 
   if (from && to) {
-    sql += " AND DATE(h.assigned_at) BETWEEN ? AND ?";
+    // Also change this to filter by the correct delivery date
+    sql += " AND DATE(c.delivered_at) BETWEEN ? AND ?"; // ✅ CHANGED THIS LINE
     params.push(from, to);
   }
 
