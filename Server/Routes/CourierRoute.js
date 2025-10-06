@@ -23,40 +23,40 @@ router.post("/add", (req, res) => {
       if (err) return res.json({ Status: false, Error: "Insert error: " + err.message });
 
       const courierId = result.insertId;
-      
-      // ✅ After inserting, fetch the full courier details to return to the frontend
-      const getNewCourierSql = `
-        SELECT c.*, e.name AS employee_name
-        FROM couriers c
-        LEFT JOIN employee e ON c.employee_id = e.employee_id
-        WHERE c.courier_id = ?
+
+      // --- START OF MODIFICATION ---
+      // Always create a history record, even if the employee ID is null.
+      const historySql = `
+        INSERT INTO courier_history (courier_id, employee_id, assigned_at)
+        VALUES (?, ?, NOW())
       `;
 
-      con.query(getNewCourierSql, [courierId], (fetchErr, newCourierResult) => {
-        if (fetchErr) {
-          return res.json({ Status: false, Error: "Failed to fetch newly created courier." });
+      con.query(historySql, [courierId, empId], (historyErr) => {
+        if (historyErr) {
+          return res.json({ Status: false, Error: "History insert error: " + historyErr.message });
         }
-        const newCourier = newCourierResult[0];
 
-        if (empId) {
-          const historySql = `
-            INSERT INTO courier_history (courier_id, employee_id, assigned_at)
-            VALUES (?, ?, NOW())
-          `;
-          con.query(historySql, [courierId, empId], (historyErr) => {
-            if (historyErr) return res.json({ Status: false, Error: "History insert error: " + historyErr.message });
-            
-            // ✅ Return the complete new courier object
-            return res.json({ Status: true, Result: newCourier });
-          });
-        } else {
-          // ✅ Return the complete new courier object
-          return res.json({ Status: true, Result: newCourier });
-        }
+        // After successfully creating both records, fetch the full courier details to return.
+        const getNewCourierSql = `
+          SELECT c.*, e.name AS employee_name
+          FROM couriers c
+          LEFT JOIN employee e ON c.employee_id = e.employee_id
+          WHERE c.courier_id = ?
+        `;
+
+        con.query(getNewCourierSql, [courierId], (fetchErr, newCourierResult) => {
+          if (fetchErr) {
+            return res.json({ Status: false, Error: "Failed to fetch newly created courier." });
+          }
+          // Return the complete courier object so the frontend can update instantly.
+          return res.json({ Status: true, Result: newCourierResult[0] });
+        });
       });
+      // --- END OF MODIFICATION ---
     });
   };
 
+  // This part remains the same
   if (employee_id) {
     assignCourier(employee_id);
   } else {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line, Cell
+  LineChart, Line
 } from "recharts";
 
 export default function Profile() {
@@ -10,7 +10,7 @@ export default function Profile() {
   const [couriers, setCouriers] = useState([]);
   const manager_id = localStorage.getItem("id");
 
-  const API_BASE = import.meta.env.VITE_API_URL;
+  const API_BASE = import.meta.env.VITE_API_URL; // ✅ Define API Base URL
 
   useEffect(() => {
     fetchManagerDetails();
@@ -19,55 +19,43 @@ export default function Profile() {
 
   const fetchManagerDetails = async () => {
     try {
+      // ✅ Use API_BASE
       const res = await axios.get(`${API_BASE}/auth/manager/${manager_id}`);
-      if (res.data.Status) {
-        setManager(res.data.Result);
-      } else {
-        // ✅ Handle API-specific errors
-        console.error("API Error fetching manager details:", res.data.Error);
-      }
+      if (res.data.Status) setManager(res.data.Result);
     } catch (err) {
-      console.error("Network/Server Error fetching manager details:", err);
+      console.error("Error fetching manager details:", err);
     }
   };
 
   const fetchManagerCouriers = async () => {
     try {
+      // ✅ Use API_BASE
       const res = await axios.get(`${API_BASE}/courier/manager/${manager_id}`);
-      if (res.data.Status) {
-        setCouriers(res.data.Result);
-      } else {
-        // ✅ Handle API-specific errors
-        console.error("API Error fetching couriers:", res.data.Error);
-      }
+      if (res.data.Status) setCouriers(res.data.Result);
     } catch (err) {
-      console.error("Network/Server Error fetching couriers:", err);
+      console.error("Error fetching couriers:", err);
     }
   };
 
-  // Data processing for charts remains the same...
+  // ✅ Prepare Data for Charts
   const deliveredCount = couriers.filter(c => c.status === "delivered").length;
   const pendingCount = couriers.filter(c => c.status === "pending").length;
 
   const statusData = [
-    { name: "Delivered", count: deliveredCount, color: "#4CAF50" },
-    { name: "Pending", count: pendingCount, color: "#FFC107" },
+    { name: "Delivered", count: deliveredCount },
+    { name: "Pending", count: pendingCount },
   ];
 
+  // ✅ Group couriers by date for trend graph
   const dateMap = {};
   couriers.forEach(c => {
-    const date = new Date(c.created_at).toISOString().split('T')[0];
-    if (!dateMap[date]) {
-      dateMap[date] = { date, Delivered: 0, Pending: 0 };
-    }
-    if (c.status === "delivered") {
-      dateMap[date].Delivered += 1;
-    } else if (c.status === "pending") {
-      dateMap[date].Pending += 1;
-    }
+    const date = new Date(c.created_at).toLocaleDateString();
+    if (!dateMap[date]) dateMap[date] = { date, Delivered: 0, Pending: 0 };
+    if (c.status === "delivered") dateMap[date].Delivered += 1;
+    else dateMap[date].Pending += 1;
   });
 
-  const trendData = Object.values(dateMap).sort((a, b) => a.date.localeCompare(b.date));
+  const trendData = Object.values(dateMap);
 
   return (
     <div className="container mt-4">
@@ -92,11 +80,7 @@ export default function Profile() {
                 <YAxis allowDecimals={false} />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="count" barSize={60}>
-                  {statusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
+                <Bar dataKey="count" fill="#4CAF50" barSize={60} />
               </BarChart>
             </ResponsiveContainer>
           </div>
