@@ -45,16 +45,18 @@ export default function EmployeeCouriers() {
   // ✅ Mark a courier as delivered (Uses imported service, which is already corrected)
   // In EmployeeMS/src/Components/EmployeeCouriers.jsx
 
+// In EmployeeMS/src/Components/EmployeeCouriers.jsx
+
 async function handleDeliver(courier_id) {
   try {
     const employee_id = localStorage.getItem("id"); // Get the logged-in employee's ID
 
-    // Pass both the courier_id and employee_id to the service
+    // We now need to pass both the courier and employee ID
     const res = await deliverCourier(courier_id, employee_id); 
 
     if (res.Status) {
       alert("✅ Courier marked as delivered!");
-      fetchCouriers(); // This will refresh the list and remove the delivered item
+      fetchCouriers();
     } else {
       alert(res.Error || "Error updating courier");
     }

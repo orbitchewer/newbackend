@@ -14,10 +14,13 @@ export const getManagerCouriers = (managerId) =>
 export const getEmployeeCouriers = (employeeId) =>
   axios.get(`${API}/employee/${employeeId}`).then((r) => r.data);
 
+// In EmployeeMS/src/Services/courierService.js
+
 export async function deliverCourier(courierId, employeeId) {
   try {
-    const res = await axios.put(`${API_BASE}/courier/deliver/${courierId}`, {
-      employee_id: employeeId, // Send the employee_id in the request body
+    // Send the employee_id in the body of the PUT request
+    const res = await axios.put(`${API_BASE}/courier/deliver/${courierId}`, { 
+      employee_id: employeeId 
     });
     return res.data;
   } catch (err) {

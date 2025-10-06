@@ -115,9 +115,13 @@ router.get("/employee/:id", (req, res) => {
 /**
  * ✅ Mark courier as delivered (Corrected "Upsert" Logic)
  */
+/**
+ * ✅ Mark courier as delivered (Corrected "Upsert" Logic)
+ */
 router.put("/deliver/:id", (req, res) => {
   const courierId = req.params.id;
-  const { employee_id } = req.body; // Get the employee ID from the request
+  // We will get the employee's ID from the frontend request
+  const { employee_id } = req.body; 
 
   if (!employee_id) {
     return res.json({ Status: false, Error: "Employee ID is required to mark as delivered." });
@@ -134,8 +138,9 @@ router.put("/deliver/:id", (req, res) => {
       return res.json({ Status: false, Error: "Courier update error: " + err.message });
     }
 
-    // This "UPSERT" query will INSERT a new history record if one doesn't exist,
-    // or UPDATE the delivered_at time if it does.
+    // This "UPSERT" query is the key to the fix.
+    // It will INSERT a new history record if one doesn't exist for this courier,
+    // or UPDATE the delivered_at time if a record already exists.
     const historySql = `
       INSERT INTO courier_history (courier_id, employee_id, assigned_at, delivered_at)
       VALUES (?, ?, NOW(), NOW())
