@@ -107,45 +107,42 @@ router.get("/employee/:id", (req, res) => {
 /**
  * ✅ Mark courier as delivered
  */
+/**
+ * ✅ Mark courier as delivered (Corrected Logic)
+ */
 router.put("/deliver/:id", (req, res) => {
-  const id = req.params.id;
-  const sql = `
+  const courierId = req.params.id;
+  const { employee_id } = req.body; // Assuming the employee's ID is sent from the frontend
+
+  const updateCourierSql = `
     UPDATE couriers 
     SET status = 'delivered', delivered_at = NOW() 
     WHERE courier_id = ?
   `;
-  con.query(sql, [id], (err) => {
-    if (err) return res.json({ Status: false, Error: "Update error: " + err.message });
 
+  con.query(updateCourierSql, [courierId], (err) => {
+    if (err) {
+      return res.json({ Status: false, Error: "Courier update error: " + err.message });
+    }
+
+    // --- START OF FIX ---
+    // This "UPSERT" query will INSERT a new history record if one doesn't exist
+    // for this courier_id, or UPDATE the existing one if it does.
     const historySql = `
-      UPDATE courier_history
-      SET delivered_at = NOW()
-      WHERE courier_id = ?
+      INSERT INTO courier_history (courier_id, employee_id, assigned_at, delivered_at)
+      VALUES (?, ?, NOW(), NOW())
+      ON DUPLICATE KEY UPDATE delivered_at = NOW()
     `;
-    con.query(historySql, [id], (err2) => {
-      if (err2) return res.json({ Status: false, Error: "History update error: " + err2.message });
+    // --- END OF FIX ---
+
+    con.query(historySql, [courierId, employee_id], (err2) => {
+      if (err2) {
+        return res.json({ Status: false, Error: "History update error: " + err2.message });
+      }
       return res.json({ Status: true, Message: "Courier marked as delivered successfully" });
     });
   });
 });
-
-/**
- * ✅ Report — count delivered by pincode and date range
- */
-router.post("/report", (req, res) => {
-  const { pincode, from, to } = req.body;
-  const sql = `
-    SELECT COUNT(*) AS count
-    FROM couriers
-    WHERE pincode = ? AND status = 'delivered'
-      AND delivered_at BETWEEN ? AND ?
-  `;
-  con.query(sql, [pincode, from, to], (err, result) => {
-    if (err) return res.json({ Status: false, Error: "Query error: " + err.message });
-    return res.json({ Status: true, Result: result[0] });
-  });
-});
-
 /**
  * ✅ Count all couriers (dashboard)
  */
