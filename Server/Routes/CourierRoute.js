@@ -70,22 +70,21 @@ router.post("/add", (req, res) => {
 /**
  * ✅ Get all couriers for a manager
  */
-router.get("/manager/:id", (req, res) => {
-  const { id } = req.params;
+router.get("/", (req, res) => {
   const sql = `
     SELECT c.courier_id, c.tracking_number, c.description, c.pincode, c.status, c.created_at, c.delivered_at,
-           e.name AS employee_name
+           e.name AS employee_name,
+           m.name AS manager_name 
     FROM couriers c
     LEFT JOIN employee e ON c.employee_id = e.employee_id
-    WHERE c.manager_id = ?
+    LEFT JOIN manager m ON c.manager_id = m.admin_id
     ORDER BY c.created_at DESC
   `;
-  con.query(sql, [id], (err, result) => {
+  con.query(sql, (err, result) => {
     if (err) return res.json({ Status: false, Error: "Query error: " + err.message });
     return res.json({ Status: true, Result: result });
   });
 });
-
 /**
  * ✅ Get all couriers assigned to an employee
  */

@@ -33,8 +33,8 @@ export default function ManagerCouriers() {
 
   async function fetchCouriers() {
     try {
-      const res = await getManagerCouriers(manager_id);
-      if (res.Status) setCouriers(res.Result);
+      const res = await axios.get(`${API_BASE}/courier`);
+      if (res.data.Status) setCouriers(res.data.Result);
     } catch (err) {
       console.error("Error fetching couriers:", err);
     }
