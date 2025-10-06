@@ -256,7 +256,7 @@ const Home = () => {
               <input
                 type="text"
                 className="form-control"
-                style={{ background: isDarkMode ? "#3A3A3A" : "", color: theme.text }}
+                style={{ background: isDarkMode ? "#ffffffff" : "", color: theme.text }}
                 value={form.name}
                 required
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -267,7 +267,7 @@ const Home = () => {
               <input
                 type="email"
                 className="form-control"
-                style={{ background: isDarkMode ? "#3A3A3A" : "", color: theme.text }}
+                style={{ background: isDarkMode ? "#ffffffff" : "", color: theme.text }}
                 value={form.email}
                 required
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -279,7 +279,7 @@ const Home = () => {
                 <input
                   type="password"
                   className="form-control"
-                  style={{ background: isDarkMode ? "#3A3A3A" : "", color: theme.text }}
+                  style={{ background: isDarkMode ? "#ffffffff" : "", color: theme.text }}
                   value={form.password}
                   required
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -291,7 +291,7 @@ const Home = () => {
               <input
                 type="text"
                 className="form-control"
-                style={{ background: isDarkMode ? "#3A3A3A" : "", color: theme.text }}
+                style={{ background: isDarkMode ? "#ffffffff" : "", color: theme.text }}
                 value={form.phone}
                 required
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
