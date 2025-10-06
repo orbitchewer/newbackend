@@ -205,4 +205,21 @@ router.get("/history", (req, res) => {
   });
 });
 
+/**
+ * ✅ Report — count delivered by pincode and date range
+ */
+router.post("/report", (req, res) => {
+  const { pincode, from, to } = req.body;
+  const sql = `
+    SELECT COUNT(*) AS count
+    FROM couriers
+    WHERE pincode = ? AND status = 'delivered'
+      AND DATE(delivered_at) BETWEEN ? AND ?
+  `;
+  con.query(sql, [pincode, from, to], (err, result) => {
+    if (err) return res.json({ Status: false, Error: "Query error: " + err.message });
+    return res.json({ Status: true, Result: result[0] });
+  });
+});
+
 export { router as CourierRouter };
