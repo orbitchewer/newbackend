@@ -164,12 +164,12 @@ router.post("/add_manager", async (req, res) => {
       }
 
       return res.json({
-        signupStatus: true,
+        Status: true,
         Message: "Manager added successfully",
       });
     });
   } catch (error) {
-    return res.json({ signupStatus: false, Error: error.message });
+    return res.json({ Status: false, Error: error.message });
   }
 });
 
