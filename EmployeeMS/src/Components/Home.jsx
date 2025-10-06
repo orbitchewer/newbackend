@@ -77,7 +77,7 @@ const Home = () => {
           setForm({ name: "", email: "", password: "", phone: "" });
           setEditing(null);
           showToast(editing ? "Manager updated successfully!" : "Manager added successfully!");
-          navigate('/dashboard/employee'); 
+          navigate('/dashboard/employee', { state: { refresh: true } });
         } else {
           toast.error(res.data.Error);
         }
