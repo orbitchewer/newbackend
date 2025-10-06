@@ -53,6 +53,8 @@ export default function ManagerCouriers() {
   // ✅ Add new courier + auto-assign (updates instantly)
   // In EmployeeMS/src/Components/ManagerCouriers.jsx
 
+// In EmployeeMS/src/Components/ManagerCouriers.jsx
+
 async function handleAdd(e) {
   e.preventDefault();
   try {
@@ -61,7 +63,7 @@ async function handleAdd(e) {
       manager_id,
       employee_id: form.employee_id || null,
     };
-    const res = await createCourier(payload);
+    const res = await createCourier(payload); // This calls your service
     if (res.Status) {
       setForm({
         tracking_number: "",
@@ -70,10 +72,10 @@ async function handleAdd(e) {
         employee_id: "",
       });
 
-      // ✅ Instantly add the new courier to the top of the list
+      // ✅ Instantly add the new courier from the response to the top of the list
       setCouriers(prevCouriers => [res.Result, ...prevCouriers]);
       
-      // ✅ Remove the unnecessary re-fetch
+      // ✅ We no longer need this, so it can be removed
       // await fetchCouriers(); 
 
       alert("✅ Courier added successfully!");

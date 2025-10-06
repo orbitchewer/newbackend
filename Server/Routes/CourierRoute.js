@@ -8,9 +8,10 @@ const router = express.Router();
  */
 // In Server/Routes/CourierRoute.js
 
+// In Server/Routes/CourierRoute.js
+
 router.post("/add", (req, res) => {
   const { tracking_number, description, pincode, manager_id, employee_id } = req.body;
-
   const getEmployeeSql = "SELECT employee_id FROM employee WHERE pincode = ? LIMIT 1";
 
   const assignCourier = (empId = null) => {
@@ -23,7 +24,7 @@ router.post("/add", (req, res) => {
 
       const courierId = result.insertId;
       
-      // ✅ New code: After inserting, fetch the full courier details
+      // ✅ After inserting, fetch the full courier details to return to the frontend
       const getNewCourierSql = `
         SELECT c.*, e.name AS employee_name
         FROM couriers c
@@ -35,7 +36,6 @@ router.post("/add", (req, res) => {
         if (fetchErr) {
           return res.json({ Status: false, Error: "Failed to fetch newly created courier." });
         }
-
         const newCourier = newCourierResult[0];
 
         if (empId) {
@@ -46,12 +46,12 @@ router.post("/add", (req, res) => {
           con.query(historySql, [courierId, empId], (historyErr) => {
             if (historyErr) return res.json({ Status: false, Error: "History insert error: " + historyErr.message });
             
-            // ✅ Return the new courier object
-            return res.json({ Status: true, Result: newCourier, Message: "Courier added and assigned" });
+            // ✅ Return the complete new courier object
+            return res.json({ Status: true, Result: newCourier });
           });
         } else {
-          // ✅ Return the new courier object
-          return res.json({ Status: true, Result: newCourier, Message: "Courier added (unassigned)" });
+          // ✅ Return the complete new courier object
+          return res.json({ Status: true, Result: newCourier });
         }
       });
     });
@@ -67,7 +67,6 @@ router.post("/add", (req, res) => {
     });
   }
 });
-
 /**
  * ✅ Get all couriers for a manager
  */
