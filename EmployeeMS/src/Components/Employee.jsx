@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+
 axios.defaults.withCredentials = true;
 
 const Login = () => {
@@ -28,7 +29,7 @@ const Login = () => {
     if (isSignup) {
       // ✅ Manager Signup
       axios
-        .post("http://localhost:3000/auth/signup", values)
+        .post(`${import.meta.env.VITE_API_URL}/auth/signup`, values)
         .then((res) => {
           console.log("Signup Response:", res.data);
           if (res.data.signupStatus) {
@@ -42,7 +43,7 @@ const Login = () => {
     } else {
       // ✅ Manager Login
       axios
-        .post("http://localhost:3000/auth/adminlogin", {
+        .post(`${import.meta.env.VITE_API_URL}/auth/adminlogin`, {
           email: values.email,
           password: values.password,
         })
