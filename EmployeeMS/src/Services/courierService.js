@@ -14,8 +14,16 @@ export const getManagerCouriers = (managerId) =>
 export const getEmployeeCouriers = (employeeId) =>
   axios.get(`${API}/employee/${employeeId}`).then((r) => r.data);
 
-export const deliverCourier = (courierId) =>
-  axios.put(`${API}/deliver/${courierId}`).then((r) => r.data);
+export async function deliverCourier(courierId, employeeId) {
+  try {
+    const res = await axios.put(`${API_BASE}/courier/deliver/${courierId}`, {
+      employee_id: employeeId, // Send the employee_id in the request body
+    });
+    return res.data;
+  } catch (err) {
+    return err.response?.data || { Status: false, Error: "Network error" };
+  }
+}
 
 export const getReport = (pincode, from, to) =>
   axios.post(`${API}/report`, { pincode, from, to }).then((r) => r.data);
