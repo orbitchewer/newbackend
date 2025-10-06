@@ -49,6 +49,7 @@ const Login = () => {
         .then((res) => {
           console.log("Login Response:", res.data);
           if (res.data.loginStatus) {
+            localStorage.setItem("id", res.data.id)
             navigate("/dashboard"); // ✅ redirect to same dashboard
           } else {
             setError(res.data.Error || "Invalid email or password.");
