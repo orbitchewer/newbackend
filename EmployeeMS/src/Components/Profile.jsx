@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line
+  LineChart, Line, Cell // ✅ 1. Import Cell for custom bar colors
 } from "recharts";
 
 export default function Profile() {
@@ -10,7 +10,7 @@ export default function Profile() {
   const [couriers, setCouriers] = useState([]);
   const manager_id = localStorage.getItem("id");
 
-  const API_BASE = import.meta.env.VITE_API_URL; // ✅ Define API Base URL
+  const API_BASE = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     fetchManagerDetails();
@@ -19,7 +19,6 @@ export default function Profile() {
 
   const fetchManagerDetails = async () => {
     try {
-      // ✅ Use API_BASE
       const res = await axios.get(`${API_BASE}/auth/manager/${manager_id}`);
       if (res.data.Status) setManager(res.data.Result);
     } catch (err) {
@@ -29,7 +28,6 @@ export default function Profile() {
 
   const fetchManagerCouriers = async () => {
     try {
-      // ✅ Use API_BASE
       const res = await axios.get(`${API_BASE}/courier/manager/${manager_id}`);
       if (res.data.Status) setCouriers(res.data.Result);
     } catch (err) {
@@ -37,25 +35,33 @@ export default function Profile() {
     }
   };
 
-  // ✅ Prepare Data for Charts
   const deliveredCount = couriers.filter(c => c.status === "delivered").length;
   const pendingCount = couriers.filter(c => c.status === "pending").length;
 
   const statusData = [
-    { name: "Delivered", count: deliveredCount },
-    { name: "Pending", count: pendingCount },
+    { name: "Delivered", count: deliveredCount, color: "#4CAF50" },
+    { name: "Pending", count: pendingCount, color: "#FFC107" },
   ];
 
-  // ✅ Group couriers by date for trend graph
+  // Group couriers by date for trend graph
   const dateMap = {};
   couriers.forEach(c => {
-    const date = new Date(c.created_at).toLocaleDateString();
-    if (!dateMap[date]) dateMap[date] = { date, Delivered: 0, Pending: 0 };
-    if (c.status === "delivered") dateMap[date].Delivered += 1;
-    else dateMap[date].Pending += 1;
+    // ✅ 2. Use a standard, sortable date format (YYYY-MM-DD)
+    const date = new Date(c.created_at).toISOString().split('T')[0];
+    
+    if (!dateMap[date]) {
+      dateMap[date] = { date, Delivered: 0, Pending: 0 };
+    }
+    
+    if (c.status === "delivered") {
+      dateMap[date].Delivered += 1;
+    } else if (c.status === "pending") { // Ensure only pending is counted here
+      dateMap[date].Pending += 1;
+    }
   });
 
-  const trendData = Object.values(dateMap);
+  // ✅ 3. Sort the data chronologically before rendering the chart
+  const trendData = Object.values(dateMap).sort((a, b) => a.date.localeCompare(b.date));
 
   return (
     <div className="container mt-4">
@@ -80,7 +86,12 @@ export default function Profile() {
                 <YAxis allowDecimals={false} />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="count" fill="#4CAF50" barSize={60} />
+                <Bar dataKey="count" barSize={60}>
+                  {/* ✅ 4. Use Cell to give each bar a unique color */}
+                  {statusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
