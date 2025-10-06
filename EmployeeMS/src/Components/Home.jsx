@@ -227,7 +227,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* ===== Add/Edit Manager Form ===== */}
+    {/* ===== Add/Edit Manager Form ===== */}
       <div
         className="card shadow-sm border-0"
         style={{
@@ -252,22 +252,22 @@ const Home = () => {
         <div className="card-body">
           <form onSubmit={handleSubmit} className="row g-3">
             <div className="col-md-6">
-              <label className="form-label fw-medium">Name</label>
+              <label className="form-label fw-medium" style={{ color: theme.text }}>Name</label>
               <input
                 type="text"
                 className="form-control"
-                style={{ background: isDarkMode ? "#ffffffff" : "", color: theme.text }}
+                style={{ background: isDarkMode ? "#3A3A3A" : "#FFFFFF", color: theme.text, border: `1px solid ${theme.border}` }}
                 value={form.name}
                 required
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label fw-medium">Email</label>
+              <label className="form-label fw-medium" style={{ color: theme.text }}>Email</label>
               <input
                 type="email"
                 className="form-control"
-                style={{ background: isDarkMode ? "#ffffffff" : "", color: theme.text }}
+                style={{ background: isDarkMode ? "#3A3A3A" : "#FFFFFF", color: theme.text, border: `1px solid ${theme.border}` }}
                 value={form.email}
                 required
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -275,11 +275,11 @@ const Home = () => {
             </div>
             {!editing && (
               <div className="col-md-6">
-                <label className="form-label fw-medium">Password</label>
+                <label className="form-label fw-medium" style={{ color: theme.text }}>Password</label>
                 <input
                   type="password"
                   className="form-control"
-                  style={{ background: isDarkMode ? "#ffffffff" : "", color: theme.text }}
+                  style={{ background: isDarkMode ? "#3A3A3A" : "#FFFFFF", color: theme.text, border: `1px solid ${theme.border}` }}
                   value={form.password}
                   required
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -287,11 +287,11 @@ const Home = () => {
               </div>
             )}
             <div className="col-md-6">
-              <label className="form-label fw-medium">Phone</label>
+              <label className="form-label fw-medium" style={{ color: theme.text }}>Phone</label>
               <input
                 type="text"
                 className="form-control"
-                style={{ background: isDarkMode ? "#ffffffff" : "", color: theme.text }}
+                style={{ background: isDarkMode ? "#3A3A3A" : "#FFFFFF", color: theme.text, border: `1px solid ${theme.border}` }}
                 value={form.phone}
                 required
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -317,7 +317,7 @@ const Home = () => {
           </form>
         </div>
       </div>
-    </div>
+    </div> //  <-- THIS IS THE MISSING CLOSING DIV TAG
   );
 };
 
