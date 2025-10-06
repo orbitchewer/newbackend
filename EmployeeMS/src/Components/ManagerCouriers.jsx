@@ -51,32 +51,39 @@ export default function ManagerCouriers() {
   }
 
   // ✅ Add new courier + auto-assign (updates instantly)
-  async function handleAdd(e) {
-    e.preventDefault();
-    try {
-      const payload = {
-        ...form,
-        manager_id,
-        employee_id: form.employee_id || null,
-      };
-      const res = await createCourier(payload);
-      if (res.Status) {
-        setForm({
-          tracking_number: "",
-          description: "",
-          pincode: "",
-          employee_id: "",
-        });
-        await fetchCouriers(); // refresh table instantly
-        alert("✅ Courier added successfully!");
-      } else {
-        alert(res.Error || "Error adding courier");
-      }
-    } catch (err) {
-      console.error("Error adding courier:", err);
-    }
-  }
+  // In EmployeeMS/src/Components/ManagerCouriers.jsx
 
+async function handleAdd(e) {
+  e.preventDefault();
+  try {
+    const payload = {
+      ...form,
+      manager_id,
+      employee_id: form.employee_id || null,
+    };
+    const res = await createCourier(payload);
+    if (res.Status) {
+      setForm({
+        tracking_number: "",
+        description: "",
+        pincode: "",
+        employee_id: "",
+      });
+
+      // ✅ Instantly add the new courier to the top of the list
+      setCouriers(prevCouriers => [res.Result, ...prevCouriers]);
+      
+      // ✅ Remove the unnecessary re-fetch
+      // await fetchCouriers(); 
+
+      alert("✅ Courier added successfully!");
+    } else {
+      alert(res.Error || "Error adding courier");
+    }
+  } catch (err) {
+    console.error("Error adding courier:", err);
+  }
+}
   async function handleReport(e) {
     e.preventDefault();
     try {

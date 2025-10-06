@@ -6,35 +6,54 @@ const router = express.Router();
 /**
  * ✅ Add new courier (with optional employee assignment)
  */
+// In Server/Routes/CourierRoute.js
+
 router.post("/add", (req, res) => {
   const { tracking_number, description, pincode, manager_id, employee_id } = req.body;
 
-  // If no employee_id is given, try auto-assign based on pincode
   const getEmployeeSql = "SELECT employee_id FROM employee WHERE pincode = ? LIMIT 1";
 
   const assignCourier = (empId = null) => {
-    const sql = `
+    const insertSql = `
       INSERT INTO couriers (tracking_number, description, pincode, employee_id, manager_id, status, created_at)
       VALUES (?, ?, ?, ?, ?, 'pending', NOW())
     `;
-    con.query(sql, [tracking_number, description, pincode, empId, manager_id], (err, result) => {
+    con.query(insertSql, [tracking_number, description, pincode, empId, manager_id], (err, result) => {
       if (err) return res.json({ Status: false, Error: "Insert error: " + err.message });
 
       const courierId = result.insertId;
+      
+      // ✅ New code: After inserting, fetch the full courier details
+      const getNewCourierSql = `
+        SELECT c.*, e.name AS employee_name
+        FROM couriers c
+        LEFT JOIN employee e ON c.employee_id = e.employee_id
+        WHERE c.courier_id = ?
+      `;
 
-      if (empId) {
-        const historySql = `
-          INSERT INTO courier_history (courier_id, employee_id, assigned_at)
-          VALUES (?, ?, NOW())
-        `;
-        con.query(historySql, [courierId, empId], (err2) => {
-          if (err2)
-            return res.json({ Status: false, Error: "History insert error: " + err2.message });
-          return res.json({ Status: true, Message: "Courier added and assigned to employee" });
-        });
-      } else {
-        return res.json({ Status: true, Message: "Courier added (not assigned yet)" });
-      }
+      con.query(getNewCourierSql, [courierId], (fetchErr, newCourierResult) => {
+        if (fetchErr) {
+          return res.json({ Status: false, Error: "Failed to fetch newly created courier." });
+        }
+
+        const newCourier = newCourierResult[0];
+
+        if (empId) {
+          const historySql = `
+            INSERT INTO courier_history (courier_id, employee_id, assigned_at)
+            VALUES (?, ?, NOW())
+          `;
+          con.query(historySql, [courierId, empId], (historyErr) => {
+            if (historyErr) return res.json({ Status: false, Error: "History insert error: " + historyErr.message });
+            
+            // ✅ Return the new courier object
+            return res.json({ Status: true, Result: newCourier, Message: "Courier added and assigned" });
+          });
+        } else {
+          // ✅ Return the new courier object
+          return res.json({ Status: true, Result: newCourier, Message: "Courier added (unassigned)" });
+        }
+      });
     });
   };
 
