@@ -85,7 +85,15 @@ const AddEmployee = () => {
               type="text"
               className="form-control rounded-0"
               placeholder="Enter Phone Number"
+              value={form.phone}
+                required
               onChange={(e) => setEmployee({ ...employee, phone: e.target.value })}
+              
+                
+                // ===== HTML5 VALIDATION ATTRIBUTES ADDED =====
+                maxLength="10"
+                pattern="\d{10}"
+                title="Phone number must be 10 digits"
             />
           </div>
           <div className="col-12">
