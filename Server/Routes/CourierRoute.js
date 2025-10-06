@@ -110,9 +110,18 @@ router.get("/employee/:id", (req, res) => {
 /**
  * ✅ Mark courier as delivered (Corrected Logic)
  */
+// In Server/Routes/CourierRoute.js
+
+/**
+ * ✅ Mark courier as delivered (Corrected "Upsert" Logic)
+ */
 router.put("/deliver/:id", (req, res) => {
   const courierId = req.params.id;
-  const { employee_id } = req.body; // Assuming the employee's ID is sent from the frontend
+  const { employee_id } = req.body; // Get the employee ID from the request
+
+  if (!employee_id) {
+    return res.json({ Status: false, Error: "Employee ID is required to mark as delivered." });
+  }
 
   const updateCourierSql = `
     UPDATE couriers 
@@ -125,15 +134,13 @@ router.put("/deliver/:id", (req, res) => {
       return res.json({ Status: false, Error: "Courier update error: " + err.message });
     }
 
-    // --- START OF FIX ---
-    // This "UPSERT" query will INSERT a new history record if one doesn't exist
-    // for this courier_id, or UPDATE the existing one if it does.
+    // This "UPSERT" query will INSERT a new history record if one doesn't exist,
+    // or UPDATE the delivered_at time if it does.
     const historySql = `
       INSERT INTO courier_history (courier_id, employee_id, assigned_at, delivered_at)
       VALUES (?, ?, NOW(), NOW())
-      ON DUPLICATE KEY UPDATE delivered_at = NOW()
+      ON DUPLICATE KEY UPDATE delivered_at = NOW(), employee_id = VALUES(employee_id)
     `;
-    // --- END OF FIX ---
 
     con.query(historySql, [courierId, employee_id], (err2) => {
       if (err2) {
