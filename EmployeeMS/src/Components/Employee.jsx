@@ -11,7 +11,7 @@ const Employee = () => {
 
   const fetchEmployees = () => {
     axios
-      .get("http://localhost:3000/employee")
+      .get(`${import.meta.env.VITE_API_URL}/employee`)
       .then((result) => {
         if (result.data.Status) {
           setEmployees(result.data.Result);
@@ -26,7 +26,7 @@ const Employee = () => {
     if (!window.confirm("Are you sure you want to delete this employee?")) return;
 
     axios
-      .delete("http://localhost:3000/employee/delete/" + id)
+      .delete(`${import.meta.env.VITE_API_URL}/employee/delete/${id}`)
       .then((result) => {
         if (result.data.Status) {
           setEmployees(employees.filter((e) => e.employee_id !== id));
