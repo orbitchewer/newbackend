@@ -12,7 +12,8 @@ const Home = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "", phone: "" });
   const [editing, setEditing] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+
   // Detect system theme
   useEffect(() => {
     const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
@@ -26,7 +27,7 @@ const Home = () => {
     fetchCouriers();
   }, []);
 
-  const API_BASE = import.meta.env.VITE_API_URL; // ✅ Define API Base URL
+  const API_BASE = import.meta.env.VITE_API_URL;
 
   const showToast = (msg, type = "success") =>
     toast[type](msg, {
@@ -39,7 +40,6 @@ const Home = () => {
     });
 
   const fetchManagers = () => {
-    // ✅ Use API_BASE
     axios.get(`${API_BASE}/auth/admin_records`).then((res) => {
       if (res.data.Status) {
         setManagers(res.data.Result);
@@ -49,14 +49,12 @@ const Home = () => {
   };
 
   const fetchEmployees = () => {
-    // ✅ Use API_BASE
     axios.get(`${API_BASE}/employee`).then((res) => {
       if (res.data.Status) setEmployeeTotal(res.data.Result.length);
     });
   };
 
   const fetchCouriers = () => {
-    // ✅ Use API_BASE
     axios.get(`${API_BASE}/courier/count`).then((res) => {
       if (res.data.Status) setCourierTotal(res.data.Result[0].couriers);
     });
@@ -64,10 +62,23 @@ const Home = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // ===== VALIDATION LOGIC START =====
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      showToast("Please enter a valid email address.", "error");
+      return; // Stop submission if email is invalid
+    }
+
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(form.phone)) {
+      showToast("Phone number must be exactly 10 digits.", "error");
+      return; // Stop submission if phone is invalid
+    }
+    // ===== VALIDATION LOGIC END =====
+
     const url = editing
-      // ✅ Use API_BASE
       ? `${API_BASE}/auth/edit_manager/${editing}`
-      // ✅ Use API_BASE
       : `${API_BASE}/auth/add_manager`;
 
     axios[editing ? "put" : "post"](url, form)
@@ -77,7 +88,6 @@ const Home = () => {
           setForm({ name: "", email: "", password: "", phone: "" });
           setEditing(null);
           showToast(editing ? "Manager updated successfully!" : "Manager added successfully!");
-          // navigate('/dashboard/employee', { state: { refresh: true } });
         } else {
           toast.error(res.data.Error);
         }
@@ -87,7 +97,6 @@ const Home = () => {
 
   const handleDelete = (id) => {
     if (!window.confirm("Are you sure you want to delete this manager?")) return;
-    // ✅ Use API_BASE
     axios.delete(`${API_BASE}/auth/delete_manager/${id}`).then((res) => {
       if (res.data.Status) {
         setManagers(managers.filter((m) => m.admin_id !== id));
@@ -171,15 +180,6 @@ const Home = () => {
           <h5 className="mb-0 fw-semibold" style={{ color: theme.text }}>
             List of Managers
           </h5>
-          {/* <button
-            className="btn btn-outline-dark btn-sm"
-            onClick={() => {
-              setEditing(null);
-              setForm({ name: "", email: "", password: "", phone: "" });
-            }}
-          >
-            + Add New
-          </button> */}
         </div>
 
         <div className="card-body table-responsive">
@@ -295,6 +295,10 @@ const Home = () => {
                 value={form.phone}
                 required
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                // ===== HTML5 VALIDATION ATTRIBUTES ADDED =====
+                maxLength="10"
+                pattern="\d{10}"
+                title="Phone number must be 10 digits"
               />
             </div>
             <div className="col-12 d-flex justify-content-end mt-3">
@@ -317,7 +321,7 @@ const Home = () => {
           </form>
         </div>
       </div>
-    </div> //  <-- THIS IS THE MISSING CLOSING DIV TAG
+    </div>
   );
 };
 
